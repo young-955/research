@@ -1,0 +1,15 @@
+weather_pred/data/*
+weather_pred/trained_model/*
+dataset/*
+weather_pred/__pycache__/*
+models/*
+img_detect/yolov5/*
+
+*.pyc
+
+*.pth
+*.pt
+*.pkl
+
+*.jpg
+*.png
