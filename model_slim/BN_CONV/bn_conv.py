@@ -8,6 +8,7 @@ sys.path.append('../')
 from eval.eval import eval
 
 bn_conv_model = torch.load('../../models/prune_model/vgg16_FC_BN_slimed_cifar10_acc_8211.pth')
+# bn_conv_model = torch.load('../../models/prune_model/vgg16_BN_slimed_cifar10_acc_824.pth')
 
 def conv_bn_merge(conv, bn):
     kernel = conv.weight.data
@@ -25,7 +26,6 @@ def conv_bn_merge(conv, bn):
     conv.bias.data = bias.clone()
     return conv
 
-# %%
 last_v = None
 layers = []
 for v in bn_conv_model.features.children():
@@ -43,8 +43,14 @@ new_model = nn.Sequential(*layers)
 bn_conv_model.features = new_model
 # %%
 e_tool = eval(bn_conv_model)
-e_tool.eval_model()
-
+e_tool.profiling()
 
 # %%
-torch.save('../../models/conv_bn_combine/vgg16_FC_BN_slimed_CONV_BN_COMBINE_cifar10.pth')
+# m1 = torch.load('../../models/prune_model/vgg16_cifar10_acc_8415.pth')
+# m1 = torch.load('C:\Users\young\Documents\pywork\pytorch-learn\research\models\prune_model\vgg16_BN_slimed_cifar10_acc_824.pth')
+m1 = torch.load(r'C:\Users\young\Documents\pywork\pytorch-learn\research\models\prune_model\vgg16_FC_BN_slimed_cifar10_acc_8211.pth')
+# m1 = torch.load(r'C:\Users\young\Documents\pywork\pytorch-learn\research\models\prune_model\vgg16_bnl1_cifar10_acc_8188.pth')
+e_tool = eval(m1)
+e_tool.profiling()
+
+# %%
