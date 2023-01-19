@@ -1,3 +1,4 @@
+# 注：dali只能在linux使用
 from nvidia.dali.backend import TensorCPU
 from nvidia.dali.backend import TensorGPU
 
