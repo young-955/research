@@ -5,10 +5,11 @@ import torch.nn as nn
 import numpy as np
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
-import torch.profiler as profiler
+from torch.profiler import profile, record_function, ProfilerActivity
+import time
 
 class eval():
-    def __init__(self, model) -> None:
+    def __init__(self, model, input_size = (1,3,224,224)) -> None:
         self.model = model
         self.model.eval()
         self.loss_func = nn.CrossEntropyLoss()
@@ -20,6 +21,7 @@ class eval():
             ])
         test_dataset = datasets.CIFAR10(root='../../dataset/cifar10/', train=False, transform=data_transform)
         self.test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
+        self.input = torch.randn(input_size, device='cuda')
 
     def eval_model(self):
         print('summary:')
@@ -27,6 +29,17 @@ class eval():
         print('stat:')
         stat(self.model.cpu(), (3, 32, 32))
 
+    def profiling(self):
+        self.model(self.input)
+        avt = 0
+        with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True, profile_memory=True, with_flops=True, with_modules=True) as prof:
+            for _ in range(100):
+                t1 = time.time()
+                self.model(self.input)
+                t2 = time.time()
+                avt += t2 - t1
+        print(f'time cost: {avt / 100}')
+        print(prof.key_averages())
 
     def eval_acc(self, model, data, loss_func):
         self.model.cuda()
