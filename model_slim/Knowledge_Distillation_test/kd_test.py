@@ -20,7 +20,6 @@ def eval(model, data, loss_func):
     # for item in eval_data.dataset:
     for item in data:
         data, label = item
-        label = label.cuda()
         data = data.cuda()
         pred = model(data)
         pred = torch.softmax(pred, 1)
@@ -84,8 +83,8 @@ slim:      是否剪枝
 slim_l1_s: BN层l1正则化参数
 '''
 def train(model, mparam: Model_param, slim=False, slim_l1_s = 0.0001):
-    train_dataset = datasets.CIFAR10(root='../../dataset/', train=True, transform=data_transform)
-    test_dataset = datasets.CIFAR10(root='../../dataset/', train=False, transform=data_transform)
+    train_dataset = datasets.CIFAR10(root='../../dataset/cifar10/', train=True, transform=data_transform)
+    test_dataset = datasets.CIFAR10(root='../../dataset/cifar10/', train=False, transform=data_transform)
 
     train_loader = DataLoader(train_dataset, batch_size=mparam.batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=mparam.batch_size, shuffle=False)
@@ -128,7 +127,7 @@ def train(model, mparam: Model_param, slim=False, slim_l1_s = 0.0001):
 
 # 加载resnet
 # Resnet params
-batch_size = 128
+batch_size = 32
 epoch = 20
 learn_rate = 0.0256
 momentum = 0.875
@@ -137,8 +136,7 @@ logging_steps = 100
 eval_steps = 500
 
 loss_func = nn.CrossEntropyLoss()
-# model = torchvision.models.resnet50(pretrained=False, num_classes=10)
-model = torchvision.models.vgg11(pretrained=False, num_classes=10)
+model = torchvision.models.resnet152(pretrained=False, num_classes=10)
 optimizer = optim.SGD(model.parameters(), lr=learn_rate, momentum=0.875, weight_decay=0.00125)
 
 mparam = Model_param(batch_size, epoch, learn_rate, logging_steps, eval_steps, loss_func, optimizer)
