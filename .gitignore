@@ -8,6 +8,8 @@ img_detect/yolov5/*
 *.pyc
 
 *.pth
+*.onnx
+*.plan
 *.pt
 *.pkl
 
