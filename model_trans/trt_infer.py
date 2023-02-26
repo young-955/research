@@ -57,20 +57,32 @@ def do_inference(context, bindings, inputs, outputs, stream, batch_size):
     # Return only the host outputs.
     return [out.host for out in outputs]
 
+def do_inference_v2(context, bindings, inputs, outputs, stream):
+    # Transfer input data to the GPU.
+    [cuda.memcpy_htod_async(inp.device, inp.host, stream) for inp in inputs]
+    # Run inference.
+    context.execute_async_v2(bindings=bindings, stream_handle=stream.handle)
+    # Transfer predictions back from the GPU.
+    [cuda.memcpy_dtoh_async(out.host, out.device, stream) for out in outputs]
+    # Synchronize the stream
+    stream.synchronize()
+    # Return only the host outputs.
+    return [out.host for out in outputs]
 
-test_data = torch.rand((1, 3, 224, 224)).numpy()
+if __name__ == "__main__":
+    test_data = torch.rand((1, 3, 224, 224)).numpy()
 
-with open('trt.plan', 'rb') as f, trt.Runtime(trt.Logger()) as runtime:
-    engine = runtime.deserialize_cuda_engine(f.read())
-context = engine.create_execution_context()
-inputs, outputs, bindings, stream = allocate_buffers(engine, context)
-inputs[0].host = test_data
-a = 0
-f = 100
-for _ in range(f):
-    t1 = time.time()
-    trt_outs = do_inference(context, bindings, inputs, outputs, stream, batch_size=1)
-    t2 = time.time()
-    a += t2 - t1
-print(a / f)
+    with open('trt.plan', 'rb') as f, trt.Runtime(trt.Logger()) as runtime:
+        engine = runtime.deserialize_cuda_engine(f.read())
+    context = engine.create_execution_context()
+    inputs, outputs, bindings, stream = allocate_buffers(engine, context)
+    inputs[0].host = test_data
+    a = 0
+    f = 100
+    for _ in range(f):
+        t1 = time.time()
+        trt_outs = do_inference(context, bindings, inputs, outputs, stream, batch_size=1)
+        t2 = time.time()
+        a += t2 - t1
+    print(a / f)
 

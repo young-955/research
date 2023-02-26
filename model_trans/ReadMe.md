@@ -23,11 +23,15 @@ onnx | 0.0424 |
 ### 方法
 
     1.直接使用onnx中自带的trt核
-    2.
+    2.使用onnx转tensorrt，用tensorrt加载推理
+    3.使用torch2trt模块
 
 ### 验证结果
 
-方法 | 耗时 |
---- | --- | ---
-onnx自带trt | 0.0293 |
-onnx转trt | 0.0047 |
+方法 | 耗时 | 显存占用
+--- | --- | --- | --- |
+onnx自带trt | 0.0293 | |
+onnx转trt(CPU) | 0.002164 | |
+trt fp16(CPU) | 0.00139 | |
+trt int8(CPU) | 0.0011868 |
+torch2trt | | |

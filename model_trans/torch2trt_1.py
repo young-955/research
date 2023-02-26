@@ -23,6 +23,4 @@ y_trt = model_trt(test_data)
 # check the output against PyTorch
 print(torch.max(torch.abs(y - y_trt)))
 # %%
-# import os
-# os.environ["PATH"].split(os.path.pathsep)
-# %%
+import os

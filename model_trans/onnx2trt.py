@@ -4,19 +4,19 @@ import onnxruntime
 import torch
 import time
 
-test_data = torch.rand((1, 3, 224, 224)).cuda()
+# test_data = torch.rand((1, 3, 224, 224)).cuda()
 
-onnx_session = onnxruntime.InferenceSession('test.onnx',
-        providers=['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider'])
+# onnx_session = onnxruntime.InferenceSession('test.onnx',
+#         providers=['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider'])
 
-a = 0
-f = 100
-for _ in range(f):
-    t1 = time.time()
-    onnx_session.run(['output'], {'input': test_data.cpu().numpy()})
-    t2 = time.time()
-    a += t2 - t1
-print(a / f)
+# a = 0
+# f = 100
+# for _ in range(f):
+#     t1 = time.time()
+#     onnx_session.run(['output'], {'input': test_data.cpu().numpy()})
+#     t2 = time.time()
+#     a += t2 - t1
+# print(a / f)
 
 # %%
 # onnx 转 trt
@@ -27,6 +27,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 EXPLICIT_BATCH = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
 TRT_LOGGER = trt.Logger()
+
+trt_calibrator = trt.IInt8Calibrator()
 
 def build_engine(onnx_file_path, engine_file_path):
     """Takes an ONNX file and creates a TensorRT engine to run inference with"""
@@ -41,6 +43,21 @@ def build_engine(onnx_file_path, engine_file_path):
         builder.max_batch_size = 1
         # 是否fp16
         # config.flags |= 1 << int(trt.BuilderFlag.FP16)
+        # config.flags |= 1 << int(trt.BuilderFlag.INT8)
+        # builder.int8_mode = True
+
+        
+        '''
+        int8
+        IBuilderConfig: 
+        int8_calibrator: :class:`IInt8Calibrator` Int8 Calibration interface. 
+        The calibrator is to minimize the information loss during the INT8 quantization process.
+
+        flags: :class:`int` The build mode flags to turn on builder options for this network. 
+        The flags are listed in the BuilderFlags enum. The flags set configuration options to build the network. 
+        This should be in integer consisting of one or more :class:`BuilderFlag` s, 
+        combined via binary OR. For example, ``1 << BuilderFlag.FP16 | 1 << BuilderFlag.DEBUG``.
+        '''
 
         with open(onnx_file_path, "rb") as model:
             print("Beginning ONNX file parsing")
@@ -57,26 +74,5 @@ def build_engine(onnx_file_path, engine_file_path):
         with open(engine_file_path, "wb") as f:
             f.write(plan)
 
-build_engine('test.onnx', 'trt.plan')
-
-# %%
-# 使用trt推理
-import tensorrt as trt
-import torch
-import time
-
-with open('trt.plan', "rb") as f, trt.Runtime(TRT_LOGGER) as runtime:
-    model = runtime.deserialize_cuda_engine(f.read())
-
-test_data = torch.rand((1, 3, 224, 224)).cuda()
-
-a = 0
-f = 100
-for _ in range(f):
-    t1 = time.time()
-
-    t2 = time.time()
-    a += t2 - t1
-print(a / f)
-
+build_engine('test.onnx', 'trt_int8.plan')
 
