@@ -12,6 +12,11 @@ img_detect/yolov5/*
 *.plan
 *.pt
 *.pkl
+*.csv
 
 *.jpg
 *.png
+
+*.zip
+*.model
+*.npy
