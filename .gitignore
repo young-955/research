@@ -4,6 +4,7 @@ dataset/*
 weather_pred/__pycache__/*
 models/*
 img_detect/yolov5/*
+tools/data/*
 
 *.pyc
 
