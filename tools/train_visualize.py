@@ -6,7 +6,7 @@ import torch.utils.data as data
 from test_model import mymodel
 import hiddenlayer as hid
 
-# 训练可视化
+# 训练可视化, 需要安装tensorboard, tensorboardX, hiddenlayer
 # 执行命令
 # tensorboard --logdir='./data/log'
 
