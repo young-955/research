@@ -26,18 +26,18 @@ labels = [torch.Tensor([0, 1]) if label == True else torch.Tensor([1, 0]) for la
 texts = dataset[['text']].values
 texts = [text[0].lower().replace('\'', '').replace(',', '').replace('.', '').replace('?', '').replace(':', '').replace(';', '').replace('"', '').split(' ') for text in texts]
 
-text_vecs = []
-for text in texts:
-    text_vec = []
-    for char in text:
-        try:
-            vec = w2v_model[char]
-            text_vec.append(vec)
-        except:
-            pass
-    text_vecs.append(torch.Tensor(text_vec))
+# text_vecs = []
+# for text in texts:
+#     text_vec = []
+#     for char in text:
+#         try:
+#             vec = w2v_model[char]
+#             text_vec.append(vec)
+#         except:
+#             pass
+#     text_vecs.append(torch.Tensor(text_vec))
 
-train_x, val_x, train_y, val_y = text_vecs[:190000], text_vecs[190000:], labels[:190000], labels[190000:]
+train_x, val_x, train_y, val_y = texts[:190000], texts[190000:], labels[:190000], labels[190000:]
 
 train_data = humordata(train_x, train_y)
 val_data = humordata(val_x, val_y)
@@ -52,13 +52,12 @@ val_loader = torch.utils.data.DataLoader(dataset = val_data,
                                             shuffle = False,
                                             num_workers = 8)
 
-# %%
 import sys
 sys.path.append('../')
 from series_model.self_lstm import *
 from train.train import *
 
 model = LSTM(3, 100, 256, 2)
-
-train(model, train_loader, val_loader)
+# %%
+train_func(model, train_loader, val_loader, w2v_model)
 # %%
