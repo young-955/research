@@ -5,6 +5,7 @@ weather_pred/__pycache__/*
 models/*
 img_detect/yolov5/*
 tools/data/*
+colab/stable_diffusion/
 
 *.pyc
 
@@ -21,3 +22,4 @@ tools/data/*
 *.zip
 *.model
 *.npy
+colab/promt.md
